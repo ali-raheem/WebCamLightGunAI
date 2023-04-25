@@ -70,7 +70,6 @@ def main():
             highest_scoring_obj = max(tv_objs, key=lambda x: x.score)
             relative_coordinates = get_relative_coordinates(frame_center, highest_scoring_obj)
 
-            # Update Kalman filter with new observations
             filtered_coords, _ = kf.filter_update(kf.initial_state_mean, kf.initial_state_covariance, relative_coordinates)
 
             if args.debug:
