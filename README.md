@@ -2,6 +2,13 @@
 
 Uses a webcam with a coral AI edgeTPU to create a lightgun.
 
+It uses an object detection model to identify the monitor in the view (selecting the highest confidence score object if multiple are detected). It then moves the mouse cursor to where the camera is pointed relative to the bounding box.
+
+`--debug` flag shows detected monitor and focus.
+
+![Screenshot showing cursor following webcam focus](screenshot.png)
+
+
 ## Dependencies
 
 ### Hardware Required
