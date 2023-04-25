@@ -9,6 +9,7 @@ from pycoral.adapters import common
 from pycoral.adapters import detect
 from pycoral.utils.dataset import read_label_file
 from pycoral.utils.edgetpu import make_interpreter
+from pykalman import KalmanFilter
 
 def get_center_coordinates(obj):
     x_center = (obj.bbox.xmin + obj.bbox.xmax) / 2
@@ -41,6 +42,14 @@ def main():
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, args.width)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, args.height)
 
+# shoe horn in filter
+    kf = KalmanFilter(initial_state_mean=np.zeros(2),
+                      initial_state_covariance=np.eye(2),
+                      transition_matrices=np.eye(2),
+                      observation_matrices=np.eye(2),
+                      observation_covariance=0.1 * np.eye(2),
+                      transition_covariance=0.01 * np.eye(2))
+
     while True:
         ret, frame = cap.read()
         if not ret:
@@ -56,19 +65,24 @@ def main():
         frame_center = (frame.shape[1] // 2, frame.shape[0] // 2)
         if args.debug:
             cv2.drawMarker(frame, frame_center, (255, 0, 0), cv2.MARKER_CROSS, 20, 2) # Frame centre
+
         if tv_objs:
             highest_scoring_obj = max(tv_objs, key=lambda x: x.score)
             relative_coordinates = get_relative_coordinates(frame_center, highest_scoring_obj)
+
+            # Update Kalman filter with new observations
+            filtered_coords, _ = kf.filter_update(kf.initial_state_mean, kf.initial_state_covariance, relative_coordinates)
+
             if args.debug:
                 cv2.rectangle(frame, (highest_scoring_obj.bbox.xmin, highest_scoring_obj.bbox.ymin),
                               (highest_scoring_obj.bbox.xmax, highest_scoring_obj.bbox.ymax), (0, 255, 0), 2)
                 cv2.putText(frame, f"({relative_coordinates[0]:.2f}, {relative_coordinates[1]:.2f})",
                             (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
 
-            if 0.0 <= relative_coordinates[0] <= 1.0 and 0.0 <= relative_coordinates[1] <= 1.0:
-                screen_size = pyautogui.size() # sometimes resolution shifts midgame
-                x_mouse = int(screen_size[0] * relative_coordinates[0])
-                y_mouse = int(screen_size[1] * relative_coordinates[1])
+            if 0.0 <= filtered_coords[0] <= 1.0 and 0.0 <= filtered_coords[1] <= 1.0:
+                screen_size = pyautogui.size()
+                x_mouse = int(screen_size[0] * filtered_coords[0])
+                y_mouse = int(screen_size[1] * filtered_coords[1])
                 pyautogui.moveTo(x_mouse, y_mouse, args.duration)
 
         if args.debug:

@@ -4,10 +4,15 @@ Uses a webcam with a coral AI edgeTPU to create a lightgun.
 
 It uses an object detection model to identify the monitor in the view (selecting the highest confidence score object if multiple are detected). It then moves the mouse cursor to where the camera is pointed relative to the bounding box.
 
-`--debug` flag shows detected monitor and focus.
+Currently it runs at up to about 50-100Hz, but by default it is slowed to about 10 moves per second.
 
 ![Screenshot showing cursor following webcam focus](screenshot.png)
 
+Basic tips:
+* Check the `--debug` image to see if anything in the view is confusing the model
+* The webcam should be held as vertical as possible as so far the image isn't being rotated to compensate for oblique monitors
+* There is very little smoothing, add in a kalman model (or esimtation/calibration) [TODO]
+* A CPU model should be supported [TODO]
 
 ## Dependencies
 
