@@ -8,6 +8,8 @@ Currently it runs at up to about 50-100Hz, but by default it is slowed to about 
 
 ![Screenshot showing cursor following webcam focus](screenshot.png)
 
+![Screenshot showing virtual gamepad mode](screenshot-vgp.png)
+
 Basic tips:
 * Check the `--debug` image to see if anything in the view is confusing the model
 * The webcam should be held as vertical as possible as so far the image isn't being rotated to compensate for oblique monitors

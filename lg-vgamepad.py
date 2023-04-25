@@ -78,10 +78,10 @@ def main():
         tv_objs = [obj for obj in objs if labels[obj.id] == args.object]
         frame_center = (frame.shape[1] // 2, frame.shape[0] // 2)
         if args.debug:
-            cv2.drawMarker(frame, frame_center, (255, 0, 0), cv2.MARKER_CROSS, 20, 2) # Frame centre
+            cv2.drawMarker(frame, frame_center, (255, 0, 0), cv2.MARKER_CROSS, 20, 2) # Mark centre of frame
 
         if tv_objs:
-            highest_scoring_obj = max(tv_objs, key=lambda x: x.score)
+            highest_scoring_obj = max(tv_objs, key=lambda tv: tv.score)
             relative_coordinates = get_relative_coordinates(frame_center, highest_scoring_obj)
             measurements_x.append(relative_coordinates[0])
             measurements_y.append(relative_coordinates[1])
@@ -93,14 +93,14 @@ def main():
                 cv2.putText(frame, f"({relative_coordinates[0]:.2f}, {relative_coordinates[1]:.2f})",
                             (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
             gamepad.left_joystick_float(x_value_float=filtered_coords[0] - 1.0, y_value_float=1.0 - filtered_coords[1])
-        else:
-            pass
-            measurements_x.append(0.0)
-            measurements_y.append(0.0)
-            smoothed_coords, _ = kf.smooth(np.column_stack((measurements_x, measurements_y)))
-            filtered_coords = smoothed_coords[-1] * 2.0
-            gamepad.left_joystick_float(x_value_float=0.0, y_value_float=0.0)
-        gamepad.update()
+            gamepad.update()
+        # else:
+        #     measurements_x.append(0.0)
+        #     measurements_y.append(0.0)
+        #     smoothed_coords, _ = kf.smooth(np.column_stack((measurements_x, measurements_y)))
+        #     filtered_coords = smoothed_coords[-1] * 2.0
+        #     gamepad.left_joystick_float(x_value_float=0.0, y_value_float=0.0)
+        #     gamepad.update()
         if args.debug:
             cv2.imshow('Monitor Detection', frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
