@@ -6,11 +6,7 @@ It uses an object detection model to identify the monitor in the view (selecting
 
 Currently it runs at about 3 actions per second (limited by opencv frame grab, monitor detection takes about 10ms).
 
-## Branches
-* master - Simple one player
-* two_player - Untested allows to people to use two cameras as two light guns left and right analogue sticks (windows only).
-
-## In action
+## See it in action
 
 [Youtube video showing some gameplay](https://youtu.be/7g3i7UJV5Zg), buttons pressed by aiming out of the screen with XYAB buttons depending if above, below etc the monitor.
 
