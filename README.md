@@ -23,7 +23,10 @@ Basic tips:
 * Python 3.9
 * pycoral
 * opencv-python
-* pyautogui
+#### Windows, Linux and MacOS
+* pyautogui - lg.py
+#### Windows Only Gamepad mode
+* vgamepad (uses Nefarious gamepad emulator) - lg-vgamepad.py
 
 ### Models
 From https://coral.ai/models/object-detection/ get an object detection model that can label TVs or monitors. Anything trained on the COCO dataset should work.
