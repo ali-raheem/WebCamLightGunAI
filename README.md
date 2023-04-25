@@ -4,7 +4,15 @@ Uses a webcam with a coral AI edgeTPU to create a lightgun.
 
 It uses an object detection model to identify the monitor in the view (selecting the highest confidence score object if multiple are detected). It then moves the mouse cursor to where the camera is pointed relative to the bounding box.
 
-Currently it runs at up to about 50-100Hz, but by default it is slowed to about 10 moves per second.
+Currently it runs at about 3 actions per second (limited by opencv frame grab, monitor detection takes about 10ms).
+
+## Branches
+* master - Simple one player
+* two_player - Untested allows to people to use two cameras as two light guns left and right analogue sticks (windows only).
+
+## In action
+
+[Youtube video showing some gameplay](https://youtu.be/7g3i7UJV5Zg), buttons pressed by aiming out of the screen with XYAB buttons depending if above, below etc the monitor.
 
 ![Screenshot showing cursor following webcam focus](screenshot.png)
 
