@@ -43,4 +43,4 @@ I used SSD MobileNet V2 from [tf2_ssd_mobilenet_v2_coco17_ptq_edgetpu.tflite](ht
 
 `python .\lg.py --model .\model\tf2_ssd_mobilenet_v2_coco17_ptq_edgetpu.tflite --label .\model\coco_labels.txt`
 
-You will need to map something to click, rightclick or other buttons. You probably want the RawInput mode in game.
+You will need to map something to click, rightclick or other buttons. You probably want the RawInput mode in game for lg (using pyautogui) and xinput for lg-gamepad and lg-p2 using vgamepad.
