@@ -5,6 +5,7 @@ import time
 import numpy as np
 import pyautogui
 from PIL import Image
+from collections import deque
 from pycoral.adapters import common
 from pycoral.adapters import detect
 from pycoral.utils.dataset import read_label_file
@@ -29,6 +30,7 @@ def main():
     parser.add_argument('-v', '--videodevice', type=int, default=0, help='Video device index')
     parser.add_argument('-w', '--width', type=int, default=640, help='Video capture width')
     parser.add_argument('-ht', '--height', type=int, default=480, help='Video capture height')
+    parser.add_argument('--filter_len', type=int, default=5, help='Smoothing filter length')
     parser.add_argument('--object', default='tv', help='Label to use for detection')
     parser.add_argument('--debug', action='store_true', help='Enable debug mode for image output and drawing')
     parser.add_argument('--duration', type=float, default=0.1, help='Duration of mouse movement')
@@ -42,13 +44,25 @@ def main():
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, args.width)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, args.height)
 
-# shoe horn in filter
-    kf = KalmanFilter(initial_state_mean=np.zeros(2),
-                      initial_state_covariance=np.eye(2),
-                      transition_matrices=np.eye(2),
-                      observation_matrices=np.eye(2),
-                      observation_covariance=0.1 * np.eye(2),
-                      transition_covariance=0.01 * np.eye(2))
+    measurements_x = deque(maxlen=args.filter_len)
+    measurements_x.append(0.5)
+    measurements_y = deque(maxlen=args.filter_len)
+    measurements_y.append(0.5)
+
+    initial_state_mean = [measurements_x[0], measurements_y[0]]
+    initial_state_covariance = [[1, 0], [0, 1]]
+    transition_matrix = [[1, 0], [0, 1]]
+    observation_matrix = [[1, 0], [0, 1]]
+    observation_covariance = [[1, 0], [0, 1]]
+    process_covariance = [[1, 0], [0, 1]]
+
+    kf = KalmanFilter(transition_matrices=transition_matrix,
+            observation_matrices=observation_matrix,
+            initial_state_mean=initial_state_mean,
+            initial_state_covariance=initial_state_covariance,
+            observation_covariance=observation_covariance,
+            transition_covariance=process_covariance)
+
 
     while True:
         ret, frame = cap.read()
@@ -69,9 +83,10 @@ def main():
         if tv_objs:
             highest_scoring_obj = max(tv_objs, key=lambda x: x.score)
             relative_coordinates = get_relative_coordinates(frame_center, highest_scoring_obj)
-
-            filtered_coords, _ = kf.filter_update(kf.initial_state_mean, kf.initial_state_covariance, relative_coordinates)
-
+            measurements_x.append(relative_coordinates[0])
+            measurements_y.append(relative_coordinates[1])
+            smoothed_coords, _ = kf.smooth(np.column_stack((measurements_x, measurements_y)))
+            filtered_coords = smoothed_coords[-1]
             if args.debug:
                 cv2.rectangle(frame, (highest_scoring_obj.bbox.xmin, highest_scoring_obj.bbox.ymin),
                               (highest_scoring_obj.bbox.xmax, highest_scoring_obj.bbox.ymax), (0, 255, 0), 2)
