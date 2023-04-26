@@ -1,4 +1,4 @@
-# Ali Raheem 2023
+# MIT License - Ali Raheem 2023
 import argparse
 import cv2
 import time
